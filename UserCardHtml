@@ -13,7 +13,7 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     margin: 0;
     padding: 16px;
-    background: #e5e0d3;     /* 少しだけ黄みがかった畑カラー */
+    background: #e8f2ff;     /* 少しだけ黄みがかった畑カラー */
     color: #333;
     font-size: 16px;         /* ベースを少し大きく */
     line-height: 1.7;
