@@ -1,0 +1,84 @@
+/** 共通ヘルパー（スプレッドシート側専用） **/
+
+/** HatakeQuest_Entries のシートを返す（このブック内） */
+function getEntriesSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();  // ★ ここは getActiveSpreadsheet！
+  const sh = ss.getSheetByName(ENTRIES_SHEET_NAME);
+  if (!sh) {
+    throw new Error('シートが見つかりません: ' + ENTRIES_SHEET_NAME);
+  }
+  return sh;
+}
+
+/**
+ * HatakeQuest_Entries 用のヘッダーを保証し、
+ * ヘッダー名 → 列番号マップを返す。
+ */
+function ensureHeaders_(sheet) {
+  const need = [
+    'timestamp','eventType','userId','displayName',
+    'msgType','messageId','text','photoUrl',
+    'status','xpStatus','approvedAt','approvedBy',
+    'skillKey','skillStars','skillStarsHistory','source'
+  ];
+
+  const headerRow = ENTRIES_HEADER_ROW;   // 2 行目がヘッダー
+  const lastCol = Math.max(sheet.getLastColumn(), need.length);
+
+  const header = sheet.getRange(headerRow, 1, 1, lastCol).getValues()[0];
+
+  const map = {};
+  header.forEach((v, i) => {
+    if (v) map[String(v).trim()] = i + 1;
+  });
+
+  let col = header.length;
+  const hasApproved = !!map['approved'];
+
+  need.forEach(name => {
+    if (name === 'status' && hasApproved) return;  // approved があるときは status を作らない
+
+    if (!map[name]) {
+      col += 1;
+      sheet.getRange(headerRow, col).setValue(name);
+      map[name] = col;
+    }
+  });
+
+  return map;
+}
+
+/** ヘッダーマップをシンプルに取得するユーティリティ */
+function getHeaderMap_(sheet) {
+  const headerRow = ENTRIES_HEADER_ROW;
+  const row = sheet.getRange(headerRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+  const tmp = {};
+  row.forEach((v, i) => {
+    tmp[String(v || '').trim()] = i + 1;
+  });
+
+  const statusCol = tmp['status'] || tmp['approved'];
+
+  return {
+    timestamp: tmp['timestamp'],
+    eventType: tmp['eventType'],
+    userId: tmp['userId'],
+    displayName: tmp['displayName'],
+    msgType: tmp['msgType'],
+    messageId: tmp['messageId'],
+    text: tmp['text'],
+    photoUrl: tmp['photoUrl'],
+    status: statusCol,
+    xpStatus: tmp['xpStatus'] || null,
+    source: tmp['source'] || null
+  };
+}
+
+function now_() {
+  return Utilities.formatDate(
+    new Date(),
+    Session.getScriptTimeZone() || 'Asia/Tokyo',
+    'yyyy-MM-dd HH:mm:ss'
+  );
+}

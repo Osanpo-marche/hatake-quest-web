@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8" />
+    <!-- ★ここ追加：スマホ用の拡大・縮小設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>畑クエスト：ユーザーカード</title>
+    <style>
+  /* === 全体ベース === */
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 16px;
+    background: #f3f5e9;     /* 少しだけ黄みがかった畑カラー */
+    color: #333;
+    font-size: 16px;         /* ベースを少し大きく */
+    line-height: 1.7;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  h1 {
+    font-size: 20px;
+    margin: 0 0 8px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  /* === カードコンテナ === */
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;          /* 画面幅いっぱいに */
+    max-width: 760px;     /* PC では広すぎ防止 */
+    margin: 0 auto;
+    padding: 0 8px;       /* スマホで左右余白を少しだけ */
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 18px 18px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+    border: 2px solid #b5d98a;  /* 畑グリーンの縁取り */
+  }
+
+  .cards h3 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .cards h4 {
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .level-title {
+    font-size: 19px;
+    font-weight: 700;
+  }
+
+  .user-name {
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  /* === レベル周り（名刺っぽい枠） === */
+  .user-header-box {
+    border-radius: 12px;
+    border: 1px solid #d6ebc4;
+    background: #f7fbf1;
+    padding: 10px 12px 12px;
+    margin-bottom: 10px;
+  }
+
+  .user-level {
+    font-size: 19px;        /* ユーザー名より少し小さく */
+    font-weight: 700;
+    margin: 4px 0 2px;
+    color: #1f4d2e;
+  }
+
+  .user-count {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 4px;
+  }
+
+  .user-level-en {
+    font-size: 15px;        /* Beginner / Farm Trainee */
+    font-weight: 700;
+    color: #333;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .user-level-desc {
+    font-size: 14px;        /* ── 畑に初めて立ち、土の感触を知った。 */
+    font-weight: 700;
+    color: #35694b;
+    margin-bottom: 10px;
+    border-left: 3px solid #79a885;
+    padding-left: 6px;
+  }
+
+  .desc {
+    font-size: 15px;
+    font-weight: 600;
+    color: #467b35;         /* 畑らしいグリーン */
+  }
+
+  /* === セクション見出し === */
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 10px 0 4px;
+  }
+
+  .section-sub {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 4px;
+  }
+
+  /* === スキルリスト === */
+  ul.skill-list {
+    margin: 0 0 6px 0;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;    /* スキル名を少し大きめに */
+  }
+
+  .skill-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 2px 0;
+  }
+
+  .skill-item:last-child {
+    border-bottom: none;
+  }
+
+  .skill-name {
+    flex: 0 0 auto;
+  }
+
+  /* 🌱🌿🌾🌻 アイコン部分 */
+  .skill-icons {
+    flex: 0 0 auto;
+    margin-left: 8px;
+    font-size: 19px;   /* アイコンも少し大きく */
+    white-space: nowrap;
+  }
+
+  /* ★数（右端） */
+  .skill-stars {
+    margin-left: auto;
+    font-size: 12px;
+    color: #444;
+    white-space: nowrap;
+  }
+
+  .note {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 4px 0 8px;
+  }
+
+  .badge-row {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .badge-empty {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  .empty {
+    font-size: 13px;
+    color: #666;
+  }
+</style>
+  </head>
+
+  <body>
+    <h1>畑クエスト ユーザーカード</h1>
+    <div class="subtitle">
+      畑の参加記録から、「学びの量」と「スキルの練度」を可視化しています。
+    </div>
+
+    <div id="loading">読み込み中…</div>
+    <div id="error" style="display: none;"></div>
+    <div id="cards" class="cards"></div>
+
+    <script>
+      /* ★ レベル → 英名＆説明マップ */
+      const levelDetailMap = {
+        1: { en: "Beginner / Farm Trainee", desc: "畑に初めて立ち、土の感触を知った。" },
+        2: { en: "Farm Novice", desc: "草取りや収穫体験を経て、畑を体で感じ始める者。" },
+        3: { en: "Harvest Warrior", desc: "収穫の喜びを力に変え、畑作業に邁進する者。" },
+        4: { en: "Farm Knight", desc: "土や天候、季節を理解し始め、覚悟を持ち始めた戦士。" },
+        5: { en: "Farm Mage", desc: "作物と自然の理に、感性で気づき始めし者。" },
+        6: { en: "Dark Knight of the Field", desc: "雨の日も暑さも越え、畑の裏側を知る者。" },
+        7: { en: "Farm Sage", desc: "一年を通して土と季節の声を読む智者。" },
+        8: { en: "Farm Paladin", desc: "一年を完走し、光と信念で導く者。" }
+      };
+
+      // ★ 隠しスキル（★が付くまでUIに出さない）
+      const SECRET_SKILLS = new Set([
+        "畑ヘルプ",
+        "教わり / 感謝",
+        "ゴミ拾い / 整備",
+        "機械操作",
+        "ハーブ栽培 / 活用",
+        "草・植物観察",
+        "収穫 → 調理 → 発表",
+        "直売所手伝い",
+        "新規お客紹介",
+        "営業信頼構築",
+        "SNS発信"
+      ]);
+
+      // 画面読み込み時に GAS の関数を叩く
+      window.addEventListener("load", function () {
+        google.script.run
+          .withSuccessHandler(onDataLoaded)
+          .withFailureHandler(onDataError)
+          .getSkillDataForWebCard();
+      });
+
+      function onDataLoaded(data) {
+        const loading = document.getElementById("loading");
+        const error = document.getElementById("error");
+        const cards = document.getElementById("cards");
+
+        loading.style.display = "none";
+        error.style.display = "none";
+        cards.innerHTML = "";
+
+        if (!data || data.error) {
+          error.style.display = "block";
+          error.textContent =
+            (data && data.message) || "データ取得に失敗しました。";
+          return;
+        }
+
+        if (data.length === 0) {
+          cards.innerHTML =
+            '<div class="empty">表示できるユーザーがいません。</div>';
+          return;
+        }
+
+        data.forEach((user) => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          const skills = Array.isArray(user.skills) ? user.skills : [];
+          const badges = Array.isArray(user.badges) ? user.badges : [];
+
+          // ★ レベル表示テキスト
+          const levelText =
+            (user.title ? user.title + " " : "") +
+            "(Lv." +
+            (user.level || 1) +
+            ")";
+
+          // ★ レベル詳細
+          const level = user.level || 1;
+          const levelInfo = levelDetailMap[level] || {};
+          const levelEn = levelInfo.en || "";
+          const levelDesc = levelInfo.desc || "";
+
+          // ★ スキル★数マップ（いまは level をそのまま★扱い）
+          const levelByTitle = {};
+          skills.forEach((s) => {
+            if (!s || !s.title) return;
+            levelByTitle[s.title] = s.level || 0;
+          });
+
+          const getStars = (label) => {
+            const lv = levelByTitle[label];
+            return typeof lv === "number" && lv > 0 ? lv : 0;
+          };
+
+          // 🌱🌿🌾🌻 の段階（いまは★1〜5 / 6〜10 / 11〜15 / 16〜）
+          function buildSkillIcons(stars) {
+            if (stars <= 0) return "";
+            let icon = "🌱";
+            if (stars >= 6 && stars <= 10) icon = "🌿";
+            else if (stars >= 11 && stars <= 15) icon = "🌾";
+            else if (stars >= 16) icon = "🌻";
+
+            const count = Math.min(stars, 5); // 並べすぎ防止
+            return icon.repeat(count);
+          }
+
+          // カテゴリごとの表示ラベル
+          const ENTRY = ["畝立て", "種まき / 植付", "雑草とり", "水やり"];
+          const BASIC = ["収穫", "支柱組み", "ロープ結び"];
+          const INTER = [
+            "仕立て / 誘引 / 剪定",
+            "畑ヘルプ",
+            "教わり / 感謝",
+            "ゴミ拾い / 整備",
+            "機械操作"
+          ];
+          const ADV = [
+            "日誌に記録",
+            "ハーブ栽培 / 活用",
+            "草・植物観察",
+            "収穫 → 調理 → 発表"
+          ];
+          const UNIQUE = [
+            "直売所手伝い",
+            "新規お客紹介",
+            "営業信頼構築",
+            "SNS発信"
+          ];
+
+          // ★ 隠しスキル対応のリスト描画（1カテゴリ分）
+          const renderSkillList = (labels) =>
+            labels
+              .filter((label) => {
+                if (!SECRET_SKILLS.has(label)) return true;
+                return getStars(label) > 0; // 隠しスキルは★1以上で解禁
+              })
+              .map((label) => {
+                const stars = getStars(label);
+                const icons = buildSkillIcons(stars);
+                return `
+                  <li class="skill-item">
+                    <span class="skill-name">${escapeHtml(label)}</span>
+                    <span class="skill-icons">${icons}</span>
+                    <span class="skill-stars">(${stars > 0 ? "★" + stars : "★0"})</span>
+                  </li>
+                `;
+              })
+              .join("");
+
+          // ★ バッジHTML
+          const badgesHtml =
+            badges.length === 0
+              ? '<div class="badge-empty">まだバッジはありません。</div>'
+              : badges
+                  .map((b) => {
+                    const name = escapeHtml(b.badgeName || "");
+                    const desc = escapeHtml(b.description || "");
+                    const category = escapeHtml(b.category || "");
+                    const date = escapeHtml(b.updatedAt || "");
+
+                    const catJpMap = {
+                      entry: "入門",
+                      basic: "基本",
+                      intermediate: "応用",
+                      advance: "探究",
+                      unique: "特務",
+                      legendary: "伝説"
+                    };
+                    const catJp = catJpMap[category] || category;
+
+                    return `
+                      <div class="badge-row">
+                        <strong>${name}</strong><br>
+                        <span style="font-size:11px; color:#444;">
+                          ${catJp}（${category}）
+                        </span><br>
+                        ${
+                          desc
+                            ? `<span style="font-size:11px;">── ${desc}</span><br>`
+                            : ""
+                        }
+                        ${
+                          date
+                            ? `<span style="font-size:11px; color:#666;">認定日：${date}</span>`
+                            : ""
+                        }
+                      </div>
+                      <div style="height:10px;"></div>
+                    `;
+                  })
+                  .join("");
+
+          // ★ カード全体テンプレート
+          card.innerHTML = `
+  <div class="user-name">${escapeHtml(user.userName || "")}</div>
+
+  <div class="user-header-box">
+    <div class="user-level">
+      現在のレベル：${escapeHtml(levelText)}
+    </div>
+    <div class="user-count">
+      投稿回数&スキル学習★：${user.currentExp ?? 0}
+    </div>
+    ${
+      levelEn
+        ? `<div class="user-level-en">${escapeHtml(levelEn)}</div>`
+        : ""
+    }
+    ${
+      levelDesc
+        ? `<div class="user-level-desc">── ${escapeHtml(levelDesc)}</div>`
+        : ""
+    }
+  </div>
+
+            <div class="section-title">🌱 Skill Progress（スキル練度）</div>
+            <div class="note">
+              ※ このカードには、体験を重ねることで現れる「隠しスキル」もあります。
+            </div>
+
+            <div class="section-title">Entry（入門スキル）</div>
+            <div class="section-sub">畑に触れる最初のステップ。</div>
+            <ul class="skill-list">
+              ${renderSkillList(ENTRY)}
+            </ul>
+
+            <div class="section-title">Basic（基本スキル）</div>
+            <div class="section-sub">一人で安全に動ける基礎技術。</div>
+            <ul class="skill-list">
+              ${renderSkillList(BASIC)}
+            </ul>
+
+            <div class="section-title">Intermediate（応用スキル）</div>
+            <div class="section-sub">状況判断・工夫が求められるスキル。</div>
+            ${
+              INTER.length === 0
+                ? '<div class="note">まだこの分野のスキルは芽吹いていません。</div>'
+                : `<ul class="skill-list">${renderSkillList(INTER)}</ul>`
+            }
+
+            <div class="section-title">Advanced（探究スキル）</div>
+            <div class="section-sub">観察・記録・運営など、本質に近づく学び。</div>
+            ${
+              ADV.length === 0
+                ? '<div class="note">まだこの分野のスキルは芽吹いていません。</div>'
+                : `<ul class="skill-list">${renderSkillList(ADV)}</ul>`
+            }
+
+            <div class="section-title">Unique（特別スキル）</div>
+            <div class="section-sub">畑での実践と創造性から生まれる特別なスキル。</div>
+            ${
+              renderSkillList(UNIQUE)
+                ? `<ul class="skill-list">${renderSkillList(
+                    UNIQUE
+                  )}</ul>`
+                : '<div class="note">まだこの分野のスキルは芽吹いていません。</div>'
+            }
+
+            <div class="section-title">Earned Badges（習得したスキル）</div>
+            <div class="note">
+              バッジは、師匠が「任せられる」と判断したときに授与されます。
+            </div>
+            ${badgesHtml}
+          `;
+
+          cards.appendChild(card);
+        });
+      }
+
+      function onDataError(err) {
+        const loading = document.getElementById("loading");
+        const error = document.getElementById("error");
+        loading.style.display = "none";
+        error.style.display = "block";
+        error.textContent =
+          "システムエラー: " +
+          (err && err.message ? err.message : err);
+      }
+
+      // XSS対策用の簡易エスケープ
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+    </script>
+  </body>
+</html>

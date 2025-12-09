@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      background-color: #f8f9fa;
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      background-color: #ffffff;
+      border-bottom: 2px solid #e8eeef;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .tab-button {
+      flex-grow: 1;
+      padding: 12px 0;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 500;
+      color: #5f6368;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+      font-size: 0.9em;
+      user-select: none;
+    }
+    .tab-button:hover:not(.active) {
+      background-color: #f0f0f0;
+    }
+    .tab-button.active {
+      color: #1a73e8;
+      border-bottom-color: #1a73e8;
+      background-color: #e8eef8;
+    }
+    .tab-content {
+      padding: 15px 10px 10px 10px;
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      margin-bottom: 15px;
+    }
+    h4 {
+      margin-top: 0;
+      color: #1a73e8;
+      padding-bottom: 8px;
+      font-size: 1.1em;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 1em;
+    }
+    button {
+      background-color: #4285f4;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background-color 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }
+    button:disabled {
+      background-color: #a8c1f0;
+      cursor: not-allowed;
+    }
+    .result-box {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 4px;
+      background-color: #e6f4ea;
+      border: 1px solid #34a853;
+      font-size: 0.9em;
+      line-height: 1.4;
+      display: none;
+    }
+    .error-box {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #fce8e6;
+      border: 1px solid #c5221f;
+      color: #c5221f;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 0.9em;
+      display: none;
+    }
+    .token-display {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #c5221f;
+      margin-top: 5px;
+      padding: 5px;
+      background-color: #fff0f0;
+      border-radius: 3px;
+      word-break: break-all;
+    }
+    .loading-indicator {
+      margin-top: 10px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<div class="tabs">
+  <div id="tabButtonStar"     class="tab-button" onclick="openTab('StarForm')">★付与</div>
+  <div id="tabButtonRegister" class="tab-button" onclick="openTab('UserRegister')">ユーザー登録</div>
+  <div id="tabButtonBadge"    class="tab-button" onclick="openTab('BadgeForm')">バッジ付与</div>
+</div>
+
+<!-- ★付与フォーム -->
+<div id="StarForm" class="tab-content">
+  <div class="card">
+    <p style="font-size:0.9em; color:#555;">登録済みユーザーにスキル経験値 (★) を付与します。</p>
+
+    <label for="userId_star">ユーザーID (トークン)</label>
+    <input type="text" id="userId_star" placeholder="登録時に発行された12桁のIDを入力" required>
+
+    <label for="displayName_star">ユーザー名</label>
+    <input type="text" id="displayName_star" placeholder="例: 山田 太郎" required>
+
+    <label for="skillId">スキル項目</label>
+    <select id="skillId" required>
+      <option value="" disabled selected>スキルを選択してください</option>
+    </select>
+
+    <label for="starCount">付与する★の数</label>
+    <input type="number" id="starCount" value="1" min="1" required>
+
+    <button id="submitButton" onclick="submitStar()">★を付与する</button>
+
+    <div id="loading_star" class="loading-indicator" style="display:none;">
+      <img src="https://ssl.gstatic.com/docs/common/progress_spinner_large.gif" style="width:20px; height:20px; vertical-align:middle;">
+      付与処理中...
+    </div>
+
+    <div id="errorBox_star" class="error-box"></div>
+    <div id="resultBox_star" class="result-box"></div>
+  </div>
+</div>
+
+<!-- ユーザー登録フォーム -->
+<div id="UserRegister" class="tab-content">
+  <div class="card">
+    <p style="font-size:0.9em; color:#555;">ユーザー名を入力し、スキル付与に必要な<strong>一意のユーザーID（トークン）</strong>を発行します。</p>
+
+    <label for="displayName_register">ユーザー名 (必須)</label>
+    <input type="text" id="displayName_register" placeholder="例: 山田 太郎">
+
+    <button id="registerButton" onclick="registerUser()">ユーザーを登録してトークン発行</button>
+
+    <div id="loading_register" class="loading-indicator" style="display:none; margin-top:10px;">
+      <img src="https://ssl.gstatic.com/docs/common/progress_spinner_large.gif" style="width:20px; height:20px; vertical-align:middle;">
+      登録中...
+    </div>
+
+    <div id="errorBox_register" class="error-box"></div>
+
+    <div id="resultBox_register" class="result-box">
+      <strong>✅ 登録成功！</strong><br>
+      <span id="resultMessage"></span>
+      <p style="margin: 10px 0 0 0; font-weight: 500;">発行されたユーザーID (トークン):</p>
+      <div id="resultUserId" class="token-display"></div>
+      <p style="font-size: 0.8em; color:#777; margin-top: 5px;">このIDを記録し、★付与フォームやバッジ付与フォームで使用してください。</p>
+    </div>
+  </div>
+</div>
+
+<!-- バッジ付与フォーム -->
+<div id="BadgeForm" class="tab-content">
+  <div class="card">
+    <p style="font-size:0.9em; color:#555;">師匠（管理者）が「このスキルはいける」と認定した時にバッジを付与します。回数ではなく<strong>質</strong>で付ける用の仕組みです。</p>
+
+    <label for="userId_badge">ユーザーID (トークン)</label>
+    <input type="text" id="userId_badge" placeholder="登録時に発行された12桁のIDを入力" required>
+
+    <label for="displayName_badge">ユーザー名</label>
+    <input type="text" id="displayName_badge" placeholder="例: 山田 太郎" required>
+
+    <label for="badgeId">付与するバッジ</label>
+    <select id="badgeId" required>
+      <option value="" disabled selected>バッジを選択してください</option>
+    </select>
+
+    <button id="badgeButton" onclick="submitBadge()">バッジを付与する</button>
+
+    <div id="loading_badge" class="loading-indicator" style="display:none;">
+      <img src="https://ssl.gstatic.com/docs/common/progress_spinner_large.gif" style="width:20px; height:20px; vertical-align:middle;">
+      バッジ付与処理中...
+    </div>
+
+    <div id="errorBox_badge" class="error-box"></div>
+    <div id="resultBox_badge" class="result-box"></div>
+  </div>
+</div>
+
+
+<script>
+  // ---------- タブ切り替え ----------
+
+  function openTab(tabName) {
+    const tabcontent = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+
+    const tablinks = document.getElementsByClassName("tab-button");
+    for (let i = 0; i < tablinks.length; i++) {
+      tablinks[i].classList.remove("active");
+    }
+
+    document.getElementById(tabName).style.display = "block";
+
+    if (tabName === 'StarForm') {
+      document.getElementById('tabButtonStar').classList.add("active");
+    } else if (tabName === 'UserRegister') {
+      document.getElementById('tabButtonRegister').classList.add("active");
+    } else if (tabName === 'BadgeForm') {
+      document.getElementById('tabButtonBadge').classList.add("active");
+    }
+  }
+
+  window.addEventListener('load', function() {
+    openTab('StarForm');
+
+    // スキル定義読み込み
+    google.script.run.withSuccessHandler(loadSkills).getSkillDefinitions();
+    // バッジ定義読み込み
+    google.script.run.withSuccessHandler(loadBadges).getBadgeDefinitions();
+  });
+
+  // ---------- スキル定義ロード ----------
+
+  function loadSkills(definitions) {
+    const select = document.getElementById('skillId');
+    definitions.order.forEach(skillId => {
+      const skill = definitions.skills[skillId];
+      const option = document.createElement('option');
+      option.value = skillId;
+      option.textContent = skill.label + ' (Max目安:' + skill.maxStars + '★)';
+      select.appendChild(option);
+    });
+  }
+
+  // ---------- バッジ定義ロード ----------
+
+  function loadBadges(defs) {
+    const select = document.getElementById('badgeId');
+    defs.order.forEach(id => {
+      const b = defs.badges[id];
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = `${b.badgeName}（カテゴリ: ${b.category}）`;
+      option.title = b.description || '';
+      select.appendChild(option);
+    });
+  }
+
+  // ---------- ★付与処理 ----------
+
+  function submitStar() {
+    const userId = document.getElementById('userId_star').value.trim();
+    const displayName = document.getElementById('displayName_star').value.trim();
+    const skillId = document.getElementById('skillId').value;
+    const starCount = parseInt(document.getElementById('starCount').value, 10);
+
+    const submitButton = document.getElementById('submitButton');
+    const loading = document.getElementById('loading_star');
+    const resultBox = document.getElementById('resultBox_star');
+    const errorBox = document.getElementById('errorBox_star');
+
+    resultBox.style.display = 'none';
+    errorBox.style.display = 'none';
+    resultBox.textContent = '';
+    errorBox.textContent = '';
+
+    if (!userId || !displayName || !skillId || isNaN(starCount) || starCount <= 0) {
+      errorBox.style.display = 'block';
+      errorBox.textContent = 'エラー: 全ての項目を正しく入力してください。';
+      return;
+    }
+
+    const data = { userId, displayName, skillId, starCount };
+
+    submitButton.disabled = true;
+    loading.style.display = 'inline-block';
+
+    google.script.run
+      .withSuccessHandler(onStarSuccess)
+      .withFailureHandler(onStarFailure)
+      .processStarFromSidebar(data);
+  }
+
+  function onStarSuccess(result) {
+    const submitButton = document.getElementById('submitButton');
+    const loading = document.getElementById('loading_star');
+    const resultBox = document.getElementById('resultBox_star');
+    const errorBox = document.getElementById('errorBox_star');
+
+    submitButton.disabled = false;
+    loading.style.display = 'none';
+
+    if (result.success) {
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = `<strong>✅ 成功！</strong><br>${result.message}`;
+      document.getElementById('starCount').value = 1;
+    } else {
+      errorBox.style.display = 'block';
+      errorBox.textContent = '処理失敗: ' + result.message;
+    }
+  }
+
+  function onStarFailure(error) {
+    const submitButton = document.getElementById('submitButton');
+    const loading = document.getElementById('loading_star');
+    const errorBox = document.getElementById('errorBox_star');
+
+    submitButton.disabled = false;
+    loading.style.display = 'none';
+
+    errorBox.style.display = 'block';
+    errorBox.textContent = 'システムエラー: ' + error.message;
+  }
+
+  // ---------- ユーザー登録処理 ----------
+
+  function registerUser() {
+    const displayNameInput = document.getElementById('displayName_register');
+    const displayName = displayNameInput.value.trim();
+    const registerButton = document.getElementById('registerButton');
+    const loading = document.getElementById('loading_register');
+    const resultBox = document.getElementById('resultBox_register');
+    const errorBox = document.getElementById('errorBox_register');
+
+    resultBox.style.display = 'none';
+    errorBox.style.display = 'none';
+    errorBox.innerHTML = '';
+
+    if (displayName === '') {
+      errorBox.style.display = 'block';
+      errorBox.innerHTML = 'エラー: ユーザー名を入力してください。';
+      return;
+    }
+
+    registerButton.disabled = true;
+    loading.style.display = 'inline-block';
+
+    google.script.run
+      .withSuccessHandler(onRegistrationSuccess)
+      .withFailureHandler(onRegistrationFailure)
+      .registerNewUser(displayName);
+  }
+
+  function onRegistrationSuccess(result) {
+    const registerButton = document.getElementById('registerButton');
+    const loading = document.getElementById('loading_register');
+    const resultBox = document.getElementById('resultBox_register');
+    const errorBox = document.getElementById('errorBox_register');
+
+    registerButton.disabled = false;
+    loading.style.display = 'none';
+
+    if (result.success) {
+      document.getElementById('resultMessage').textContent = result.message;
+      document.getElementById('resultUserId').textContent = result.userId;
+      resultBox.style.display = 'block';
+
+      document.getElementById('displayName_register').value = '';
+
+      // ★付与タブ側にも反映
+      document.getElementById('userId_star').value = result.userId;
+      document.getElementById('displayName_star').value = result.displayName;
+
+      // バッジ付与タブ側にも反映
+      document.getElementById('userId_badge').value = result.userId;
+      document.getElementById('displayName_badge').value = result.displayName;
+    } else {
+      errorBox.style.display = 'block';
+      errorBox.innerHTML = '登録失敗: ' + result.message;
+    }
+  }
+
+  function onRegistrationFailure(error) {
+    const registerButton = document.getElementById('registerButton');
+    const loading = document.getElementById('loading_register');
+    const errorBox = document.getElementById('errorBox_register');
+
+    registerButton.disabled = false;
+    loading.style.display = 'none';
+
+    errorBox.style.display = 'block';
+    errorBox.innerHTML = 'システムエラー: ' + error.message;
+  }
+
+  // ---------- バッジ付与処理 ----------
+
+  function submitBadge() {
+    const userId      = document.getElementById('userId_badge').value.trim();
+    const displayName = document.getElementById('displayName_badge').value.trim();
+    const badgeId     = document.getElementById('badgeId').value;
+
+    const button   = document.getElementById('badgeButton');
+    const loading  = document.getElementById('loading_badge');
+    const resultBox= document.getElementById('resultBox_badge');
+    const errorBox = document.getElementById('errorBox_badge');
+
+    resultBox.style.display = 'none';
+    errorBox.style.display = 'none';
+    resultBox.textContent = '';
+    errorBox.textContent = '';
+
+    if (!userId || !displayName || !badgeId) {
+      errorBox.style.display = 'block';
+      errorBox.textContent = 'エラー: userId / ユーザー名 / バッジをすべて入力してください。';
+      return;
+    }
+
+    const data = { userId, displayName, badgeId };
+
+    button.disabled = true;
+    loading.style.display = 'inline-block';
+
+    google.script.run
+      .withSuccessHandler(onBadgeSuccess)
+      .withFailureHandler(onBadgeFailure)
+      .processBadgeFromSidebar(data);
+  }
+
+  function onBadgeSuccess(result) {
+    const button   = document.getElementById('badgeButton');
+    const loading  = document.getElementById('loading_badge');
+    const resultBox= document.getElementById('resultBox_badge');
+    const errorBox = document.getElementById('errorBox_badge');
+
+    button.disabled = false;
+    loading.style.display = 'none';
+
+    if (result.success) {
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = `<strong>✅ 成功！</strong><br>${result.message}`;
+    } else {
+      errorBox.style.display = 'block';
+      errorBox.textContent = '処理失敗: ' + result.message;
+    }
+  }
+
+  function onBadgeFailure(error) {
+    const button   = document.getElementById('badgeButton');
+    const loading  = document.getElementById('loading_badge');
+    const errorBox = document.getElementById('errorBox_badge');
+
+    button.disabled = false;
+    loading.style.display = 'none';
+
+    errorBox.style.display = 'block';
+    errorBox.textContent = 'システムエラー: ' + error.message;
+  }
+</script>
+
+</body>
+</html>
