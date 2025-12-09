@@ -1527,7 +1527,7 @@ function getSkillDataForWebCard() {
           if (starCount > 0) {
             userSkills.push({
               title: skillDef.label.replace(' (★)', ''),
-              level: level,                 // 並び替え用レベル
+              level: starCount,                 // 並び替え用レベル
               stars: starCount,             // 生の★数
               maxStars: maxStars,           // 将来用
               rank: getRank(starCount, maxStars),
