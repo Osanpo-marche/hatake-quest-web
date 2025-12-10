@@ -66,9 +66,9 @@
   }
 
   .user-name {
-    font-size: 21px;
+    font-size: 22px;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   /* === レベル周り（名刺っぽい枠） === */
@@ -88,26 +88,26 @@
   }
 
   .user-count {
-    font-size: 13px;
+    font-size: 16px;
     color: #555;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
   }
 
   .user-level-en {
-    font-size: 15px;        /* Beginner / Farm Trainee */
+    font-size: 17px;        /* Beginner / Farm Trainee */
     font-weight: 700;
     color: #333;
     margin-top: 4px;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .user-level-desc {
-    font-size: 14px;        /* ── 畑に初めて立ち、土の感触を知った。 */
+    font-size: 17px;        /* ── 畑に初めて立ち、土の感触を知った。 */
     font-weight: 700;
     color: #35694b;
-    margin-bottom: 10px;
-    border-left: 3px solid #79a885;
-    padding-left: 6px;
+    margin-bottom: 14px;
+    border-left: 4px solid #79a885;
+    padding-left: 8px;
   }
 
   .desc {
@@ -118,17 +118,17 @@
 
   /* === セクション見出し === */
   .section-title {
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 700;
-    margin: 22px 0 10px;
+    margin: 16px 0 8px;
     padding-top: 6px;
     border-top: 1px solid #d8e9c9;
   }
 
   .section-sub {
-    font-size: 12px;
+    font-size: 15px;
     color: #555;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   /* === スキルリスト === */
@@ -136,7 +136,7 @@
     margin: 0 0 6px 0;
     padding: 0;
     list-style: none;
-    font-size: 14px;    /* スキル名を少し大きめに */
+    font-size: 16px;    /* スキル名を少し大きめに */
   }
 
   .skill-item {
@@ -159,14 +159,14 @@
   .skill-icons {
     flex: 0 0 auto;
     margin-left: 8px;
-    font-size: 19px;   /* アイコンも少し大きく */
+    font-size: 22px;   /* アイコンも少し大きく */
     white-space: nowrap;
   }
 
   /* ★数（右端） */
   .skill-stars {
     margin-left: auto;
-    font-size: 12px;
+    font-size: 14px;
     color: #444;
     white-space: nowrap;
   }
