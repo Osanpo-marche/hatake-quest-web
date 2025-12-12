@@ -14,8 +14,8 @@
     padding: 16px;
     background: #e4f1ff;       /* 青空っぽい背景 */
     color: #333;
-    font-size: 16px;
-    line-height: 1.7;
+    font-size: 18px;
+    line-height: 1.75;
   }
 
   .cards {
@@ -49,12 +49,12 @@
   }
 
   .level-title {
-    font-size: 19px;
+    font-size: 21px;
     font-weight: 700;
   }
 
   .user-name {
-    font-size: 21px;
+    font-size: 23px;
     font-weight: 700;
     margin-bottom: 4px;
   }
@@ -74,7 +74,7 @@
   }
 
   .user-level {
-    font-size: 19px;
+    font-size: 21px;
     font-weight: 700;
     margin: 4px 0 2px;
     color: #e9ffcf;
@@ -87,7 +87,7 @@
   }
 
   .user-level-en {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     color: #f5f7eb;
     margin-top: 4px;
@@ -118,14 +118,14 @@
 
   /* ===== セクション（Skill Progress / Earned Badges など）===== */
   .section-title {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
     margin: 10px 0 4px;
     color: #f3f7e9;       /* 黒背景の上でも見やすく */
   }
 
   .section-sub {
-    font-size: 12px;
+    font-size: 13px;
     color: #d3dfc8;
     margin-bottom: 4px;
   }
@@ -133,6 +133,7 @@
   /* ====== A: カテゴリ見出し＋ブロック ====== */
   /* Entry / Basic / Intermediate / Advanced / Unique のブロック外枠 */
   .skill-block {
+    font-size: 20px;
     background: #ffffff;         /* 中は白いカード */
     color: #222;
     border-radius: 12px;
@@ -149,7 +150,7 @@
     border-left: 4px solid #79a885;
     border-radius: 6px;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 17px;
     margin: 0 0 6px;
     color: #234025;
   }
@@ -159,7 +160,7 @@
     margin: 0 0 6px 0;
     padding: 0;
     list-style: none;
-    font-size: 14px;
+    font-size: 17px;
   }
 
   .skill-item {
@@ -175,20 +176,22 @@
   }
 
   .skill-name {
+    font-size: 18px;
+    font-weight: 600;
     flex: 0 0 auto;
   }
 
   .skill-icons {
     flex: 0 0 auto;
     margin-left: 8px;
-    font-size: 19px;
+    font-size: 20px;
     white-space: nowrap;
   }
 
   /* ===== B: ★ゴールドカラー ===== */
   .skill-stars {
     margin-left: auto;
-    font-size: 12px;
+    font-size: 13px;
     color: #b58900;      /* ★ゴールドっぽい色 */
     font-weight: 600;
     white-space: nowrap;
@@ -202,7 +205,7 @@
   }
 
   .badge-row {
-    font-size: 13px;
+    font-size: 14px;
     margin-bottom: 4px;
   }
 
@@ -238,10 +241,10 @@
   }
 
   .badge-card small {
-    font-size: 11px;
+    font-size: 12px;
     color: #6b7280;
   }
-  
+
 /* ---- スマホ表示を広くする（横幅いっぱいに） ---- */
 @media (max-width: 600px) {
 
