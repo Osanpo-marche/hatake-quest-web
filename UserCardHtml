@@ -241,6 +241,32 @@
     font-size: 11px;
     color: #6b7280;
   }
+  
+/* ---- スマホ表示を広くする（横幅いっぱいに） ---- */
+@media (max-width: 600px) {
+
+  .cards {
+    padding: 0;           /* 周囲の余白をなくす */
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .card {
+    border-radius: 10px;
+    margin: 8px 4px;      /* ほぼ全幅に広がるように調整 */
+    padding: 16px;
+  }
+
+  .skill-block {
+    margin: 12px 4px;
+    padding: 14px;
+  }
+
+  .badge-card {
+    margin: 12px 4px;
+    padding: 14px;
+  }
+}
 
 </style>
 
